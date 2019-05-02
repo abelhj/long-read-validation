@@ -46,7 +46,8 @@ for l in sys.stdin:
 
         else:
             r = check_intersect(pb_hits)
-            if r[0] > 1 and r[1] > 0:
+            #if r[0] > 1 and r[1] > 0:
+            if r[0] > 0:
                 for i in range(len(pb_hits)):
                     print '\t'.join(last)
 
@@ -75,8 +76,8 @@ for l in sys.stdin:
                         int(curr[PB_R_END])])
  
 r = check_intersect(pb_hits)
-if r[0] > 1 and r[1] > 0:
-    if r[0] > 1 and r[1] > 0:
+if r[0] > 0 :
+#if r[0] > 1 and r[1] > 0:
         for i in range(len(pb_hits)):
             print '\t'.join(last)
 
