@@ -57,9 +57,9 @@ def splitterToBreakpoint(contigFile,splitReadSlop,localRange):
                     else:
                         variant = 'distant_duplication'
             else:
-               print str(start1)+"\t"+str(end2)
+               #print str(start1)+"\t"+str(end2)
                if end2 < start1:    #del
-                    print "del"
+                    #print "del"
                     breakStart1 = str(end2 - splitReadSlop)
                     breakEnd1 = str(end2 + 1 +splitReadSlop)
                     breakStart2 = str(start1 - splitReadSlop)
@@ -69,7 +69,7 @@ def splitterToBreakpoint(contigFile,splitReadSlop,localRange):
                     else: 
                         variant = 'distant_deletion'
                else: #dup
-                    print "dup"
+                    #print "dup"
                     breakStart1 = str(start1 - splitReadSlop)
                     breakEnd1 = str(start1 + 1 +splitReadSlop)
                     breakStart2 = str(end2 - splitReadSlop)
@@ -114,10 +114,9 @@ def splitterToBreakpoint(contigFile,splitReadSlop,localRange):
                     variant = 'local_inversion'
                 else:
                     variant = 'distant_inversion'
-            #if breakStart2 > breakStart1:
+
             print '\t'.join(map(str, [chrom1, breakStart1, breakEnd1, chrom2, breakStart2, breakEnd2, ID, score, strand1, strand2, queryStart1, queryEnd1, queryStart2, queryEnd2, minNonOverlap, queryLength, qualScores, variant]))
-            #else:
-            #    print '\t'.join(map(str, [chrom2, breakStart2, breakEnd2, chrom1, breakStart1, breakEnd1, ID, score, strand2, strand1, queryStart2, queryEnd2, queryStart1, queryEnd1, minNonOverlap, queryLength, qualScores, variant]))
+
             
 def main():
     usage = "%prog -b <bedpe> -c <contigFile.bedpe> [options]\nVersion: 0.2\nAuthor: Mitchell L. Leibowitz\nEdited: Aug, 2011 by Colby Chiang (details below)\n \
