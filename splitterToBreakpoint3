@@ -59,7 +59,6 @@ def splitterToBreakpoint(contigFile,splitReadSlop,localRange):
             else:
                #print str(start1)+"\t"+str(end2)
                if end2 < start1:    #del
-                    #print "del"
                     breakStart1 = str(end2 - splitReadSlop)
                     breakEnd1 = str(end2 + 1 +splitReadSlop)
                     breakStart2 = str(start1 - splitReadSlop)
@@ -69,9 +68,8 @@ def splitterToBreakpoint(contigFile,splitReadSlop,localRange):
                     else: 
                         variant = 'distant_deletion'
                else: #dup
-                    #print "dup"
                     breakStart1 = str(start1 - splitReadSlop)
-                    breakEnd1 = str(start1 + 1 +splitReadSlop)
+                    breakEnd1 = str(start1 + 1 + splitReadSlop)
                     breakStart2 = str(end2 - splitReadSlop)
                     breakEnd2 = str(end2 + 1 + splitReadSlop)
                     if chrom1 == chrom2 and abs(end2-start1) < localRange:
@@ -84,38 +82,27 @@ def splitterToBreakpoint(contigFile,splitReadSlop,localRange):
                 print '\t'.join(map(str, [chrom2, breakStart2, breakEnd2, chrom1, breakStart1, breakEnd1, ID, score, strand2, strand1, queryStart2, queryEnd2, queryStart1, queryEnd1, minNonOverlap, queryLength, qualScores, variant]))
     
         else:  #inversions
+            flip = False
             if strand1=='+':
-                if end1 < end2:
-                    breakStart1 = str(end1 - splitReadSlop)
-                    breakEnd1 = str(end1 + 1 + splitReadSlop)
-                    breakStart2 = str(end2 - splitReadSlop)
-                    breakEnd2 = str(end2 + 1 + splitReadSlop)
-                else:
-                    breakStart1 = str(end2 - splitReadSlop)
-                    breakEnd1 = str(end2 + 1 + splitReadSlop)
-                    breakStart2 = str(end1 - splitReadSlop)
-                    breakEnd2 = str(end1 + 1 + splitReadSlop)
-                if chrom2 == chrom1 and abs(end2-end1) < localRange:
-                    variant = 'local_inversion'
-                else:
-                    variant = 'distant_inversion'
+                breakStart1 = str(end1 - splitReadSlop)
+                breakEnd1 = str(end1 + 1 + splitReadSlop)
+                breakStart2 = str(end2 - splitReadSlop)
+                breakEnd2 = str(end2 + 1 + splitReadSlop)
+                invlen=abs(end2-end1)
+                if end1 > end2:
+                    flip = True
+            elif strand1=='-':
+                breakStart1 = str(start1 - splitReadSlop)
+                breakEnd1 = str(start1 + 1 + splitReadSlop)
+                breakStart2 = str(start2 - splitReadSlop)
+                breakEnd2 = str(start2 + 1 + splitReadSlop)
+                invlen=abs(start2-start1)
+                if start1 > start2:
+                    flip = True
+            if flip:
+              print '\t'.join(map(str, [chrom2, breakStart2, breakEnd2, chrom1, breakStart1, breakEnd1, ID, score, strand2, strand1, queryStart2, queryEnd2, queryStart1, queryEnd1, minNonOverlap, queryLength, qualScores, variant]))
             else:
-                if start1 < start2:
-                    breakStart1 = str(start1 - splitReadSlop)
-                    breakEnd1 = str(start1 + 1 + splitReadSlop)
-                    breakStart2 = str(start2 - splitReadSlop)
-                    breakEnd2 = str(start2 + 1 + splitReadSlop)
-                else:
-                    breakStart1 = str(start2 - splitReadSlop)
-                    breakEnd1 = str(start2 + 1 + splitReadSlop)
-                    breakStart2 = str(start1 - splitReadSlop)
-                    breakEnd2 = str(start1 + 1 + splitReadSlop)
-                if chrom2 == chrom1 and abs(start2-start1) < localRange:
-                    variant = 'local_inversion'
-                else:
-                    variant = 'distant_inversion'
-
-            print '\t'.join(map(str, [chrom1, breakStart1, breakEnd1, chrom2, breakStart2, breakEnd2, ID, score, strand1, strand2, queryStart1, queryEnd1, queryStart2, queryEnd2, minNonOverlap, queryLength, qualScores, variant]))
+              print '\t'.join(map(str, [chrom1, breakStart1, breakEnd1, chrom2, breakStart2, breakEnd2, ID, score, strand1, strand2, queryStart1, queryEnd1, queryStart2, queryEnd2, minNonOverlap, queryLength, qualScores, variant]))
 
             
 def main():
