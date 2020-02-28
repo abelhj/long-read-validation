@@ -36,86 +36,64 @@ def splitterToBreakpoint(contigFile,splitReadSlop,localRange):
             raise StandardError("spitterToBreakpoint cannot handle bedpe with equal starting query offsets in " + ID);
 
         if strand2==strand1:  #del or dup
-
+       # When a start takes its coordinate from an end, subtract one.
+        # When an end takes its coordinate from a start, add one. 
             if strand1=='+':
+                breakStart1 = end1 - splitReadSlop - 1
+                breakEnd1 = end1 + splitReadSlop
+                breakStart2 = start2 - splitReadSlop
+                breakEnd2 = start2 + splitReadSlop + 1
+                varsize = breakEnd2-breakStart1
                 if end1 < start2:   #del
-                    breakStart1 = str(end1 - splitReadSlop)
-                    breakEnd1 = str(end1 + 1 + splitReadSlop)
-                    breakStart2 = str(start2 - splitReadSlop)
-                    breakEnd2 = str(start2 + 1 + splitReadSlop)
-                    if chrom1==chrom2 and abs(end1-start2) < localRange:
+                    if chrom1==chrom2 and abs(varsize) < localRange:
                         variant = 'local_deletion'
                     else:
                         variant = 'distant_deletion'
                 else:  #dup
-                    breakStart1 = str(start2 - splitReadSlop)
-                    breakEnd1 = str(start2 + 1 +  splitReadSlop)
-                    breakStart2 = str(end1 - splitReadSlop)
-                    breakEnd2 = str(end1 + 1 + splitReadSlop)
-                    if chrom1==chrom2 and abs(end1-start2) < localRange:
+                    if chrom1==chrom2 and abs(varsize) < localRange:
                         variant = 'local_duplication'
                     else:
                         variant = 'distant_duplication'
             else:
-               #print str(start1)+"\t"+str(end2)
+               breakStart1 = start1 - splitReadSlop
+               breakEnd1 = start1 + splitReadSlop + 1
+               breakStart2 = end2 - splitReadSlop - 1
+               breakEnd2 = end2 + splitReadSlop
+               varsize = breakEnd2-breakStart1
                if end2 < start1:    #del
-                    #print "del"
-                    breakStart1 = str(end2 - splitReadSlop)
-                    breakEnd1 = str(end2 + 1 +splitReadSlop)
-                    breakStart2 = str(start1 - splitReadSlop)
-                    breakEnd2 = str(start1 + 1 + splitReadSlop)
-                    if chrom1==chrom2 and abs(end2-start1) < localRange:
+                    if chrom1==chrom2 and abs(varsize) < localRange:
                         variant = 'local_deletion'
                     else: 
                         variant = 'distant_deletion'
                else: #dup
-                    #print "dup"
-                    breakStart1 = str(start1 - splitReadSlop)
-                    breakEnd1 = str(start1 + 1 +splitReadSlop)
-                    breakStart2 = str(end2 - splitReadSlop)
-                    breakEnd2 = str(end2 + 1 + splitReadSlop)
-                    if chrom1 == chrom2 and abs(end2-start1) < localRange:
+                    if chrom1 == chrom2 and abs(varsize) < localRange:
                         variant = 'local_duplication'
                     else:
                         variant = 'distant_duplication'
-            if int(breakStart2) > int(breakStart1):
-                print '\t'.join(map(str, [chrom1, breakStart1, breakEnd1, chrom2, breakStart2, breakEnd2, ID, score, strand1, strand2, queryStart1, queryEnd1, queryStart2, queryEnd2, minNonOverlap, queryLength, qualScores, variant]))
-            else:
-                print '\t'.join(map(str, [chrom2, breakStart2, breakEnd2, chrom1, breakStart1, breakEnd1, ID, score, strand2, strand1, queryStart2, queryEnd2, queryStart1, queryEnd1, minNonOverlap, queryLength, qualScores, variant]))
-    
-        else:  #inversions
-            if strand1=='+':
-                if end1 < end2:
-                    breakStart1 = str(end1 - splitReadSlop)
-                    breakEnd1 = str(end1 + 1 + splitReadSlop)
-                    breakStart2 = str(end2 - splitReadSlop)
-                    breakEnd2 = str(end2 + 1 + splitReadSlop)
-                else:
-                    breakStart1 = str(end2 - splitReadSlop)
-                    breakEnd1 = str(end2 + 1 + splitReadSlop)
-                    breakStart2 = str(end1 - splitReadSlop)
-                    breakEnd2 = str(end1 + 1 + splitReadSlop)
-                if chrom2 == chrom1 and abs(end2-end1) < localRange:
-                    variant = 'local_inversion'
-                else:
-                    variant = 'distant_inversion'
-            else:
-                if start1 < start2:
-                    breakStart1 = str(start1 - splitReadSlop)
-                    breakEnd1 = str(start1 + 1 + splitReadSlop)
-                    breakStart2 = str(start2 - splitReadSlop)
-                    breakEnd2 = str(start2 + 1 + splitReadSlop)
-                else:
-                    breakStart1 = str(start2 - splitReadSlop)
-                    breakEnd1 = str(start2 + 1 + splitReadSlop)
-                    breakStart2 = str(start1 - splitReadSlop)
-                    breakEnd2 = str(start1 + 1 + splitReadSlop)
-                if chrom2 == chrom1 and abs(start2-start1) < localRange:
-                    variant = 'local_inversion'
-                else:
-                    variant = 'distant_inversion'
 
+        else:  #inversions
+            flip = False
+            if strand1=='+':
+                breakStart1 = end1 - splitReadSlop - 1
+                breakEnd1 = end1 + splitReadSlop
+                breakStart2 = end2 - splitReadSlop -1 
+                breakEnd2 = end2 + splitReadSlop
+            elif strand1=='-':
+                breakStart1 = start1 - splitReadSlop
+                breakEnd1 = start1 + splitReadSlop + 1
+                breakStart2 = start2 - splitReadSlop
+                breakEnd2 = start2 + splitReadSlop + 1
+            varsize = breakEnd2 - breakStart1
+            if chrom2 == chrom1 and abs(varsize) < localRange:
+                variant = 'local_inversion'
+            else:
+                variant = 'distant_inversion'
+
+        if breakStart2 > breakStart1:
             print '\t'.join(map(str, [chrom1, breakStart1, breakEnd1, chrom2, breakStart2, breakEnd2, ID, score, strand1, strand2, queryStart1, queryEnd1, queryStart2, queryEnd2, minNonOverlap, queryLength, qualScores, variant]))
+        else:
+            print '\t'.join(map(str, [chrom2, breakStart2, breakEnd2, chrom1, breakStart1, breakEnd1, ID, score, strand2, strand1, queryStart2, queryEnd2, queryStart1, queryEnd1, minNonOverlap, queryLength, qualScores, variant]))
+    
 
             
 def main():
